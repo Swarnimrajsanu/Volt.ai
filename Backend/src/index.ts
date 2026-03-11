@@ -1,5 +1,5 @@
-require("dotenv").config();
 import cors from "cors";
+import "dotenv/config";
 import express from "express";
 import OpenAI from "openai";
 import { basePrompt as nodeBasePrompt } from "./defaults/node.js";
