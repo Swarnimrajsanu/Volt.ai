@@ -54,20 +54,37 @@ app.post("/template", async (req, res) => {
 
 app.post("/chat", async (req, res) => {
     const messages = req.body.messages;
-    const response = await openai.chat.completions.create({
-        model: 'anthropic/claude-3.5-sonnet',
-        max_tokens: 8000,
-        messages: [
-            { role: "system", content: getSystemPrompt() },
-            ...messages
-        ]
-    })
 
-    console.log(response);
+    res.setHeader('Content-Type', 'text/event-stream');
+    res.setHeader('Cache-Control', 'no-cache');
+    res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
 
-    res.json({
-        response: response.choices[0]?.message?.content
-    });
+    try {
+        const stream = await openai.chat.completions.create({
+            model: 'anthropic/claude-3.5-sonnet',
+            max_tokens: 8000,
+            stream: true,
+            messages: [
+                { role: "system", content: getSystemPrompt() },
+                ...messages
+            ]
+        });
+
+        for await (const chunk of stream) {
+            const content = chunk.choices[0]?.delta?.content;
+            if (content) {
+                res.write(`data: ${JSON.stringify({ content })}\n\n`);
+            }
+        }
+
+        res.write(`data: ${JSON.stringify({ done: true })}\n\n`);
+        res.end();
+    } catch (error) {
+        console.error('Stream error:', error);
+        res.write(`data: ${JSON.stringify({ error: 'Stream failed' })}\n\n`);
+        res.end();
+    }
 })
 
 app.listen(3000);

@@ -1,144 +1,103 @@
-import { motion } from 'framer-motion';
-import {
-    Bug,
-    Code2,
-    LayoutGrid,
-    Mic,
-    Rocket,
-    Users,
-} from 'lucide-react';
+import { motion, useMotionValue, useSpring, useTransform } from 'framer-motion';
+import { Bug, Code2, LayoutTemplate, Mic, Rocket, Users2 } from 'lucide-react';
+import { useRef } from 'react';
 
 const features = [
-    {
-        icon: Code2,
-        title: 'AI Code Generation',
-        description: 'Generate production-ready code from natural language. Full-stack apps in seconds.',
-        gradient: 'linear-gradient(135deg, #a855f7, #7c3aed)',
-    },
-    {
-        icon: Rocket,
-        title: 'Instant Deployment',
-        description: 'One-click deploy to production. Your app goes live the moment it\'s built.',
-        gradient: 'linear-gradient(135deg, #3b82f6, #06b6d4)',
-    },
-    {
-        icon: Bug,
-        title: 'Smart Debugging',
-        description: 'AI identifies and fixes bugs automatically. Ship with confidence every time.',
-        gradient: 'linear-gradient(135deg, #06b6d4, #14b8a6)',
-    },
-    {
-        icon: Mic,
-        title: 'Voice to Code',
-        description: 'Speak your ideas and watch them transform into working applications.',
-        gradient: 'linear-gradient(135deg, #ec4899, #f43f5e)',
-    },
-    {
-        icon: Users,
-        title: 'Real-time Collaboration',
-        description: 'Build together with your team. Live cursors, shared editing, instant sync.',
-        gradient: 'linear-gradient(135deg, #f59e0b, #f97316)',
-    },
-    {
-        icon: LayoutGrid,
-        title: 'Template Marketplace',
-        description: 'Start from beautiful templates. Customize everything to match your vision.',
-        gradient: 'linear-gradient(135deg, #10b981, #22c55e)',
-    },
+    { icon: Code2, title: 'AI App Generation', description: 'Transform natural language prompts into production-ready full-stack applications with intelligent code synthesis.', gradient: 'linear-gradient(135deg, #8b5cf6, #6d28d9)' },
+    { icon: Rocket, title: 'Instant Deployment', description: 'One-click deployment to global edge networks. Your app goes live the moment it\'s ready for the world.', gradient: 'linear-gradient(135deg, #3b82f6, #1d4ed8)' },
+    { icon: Bug, title: 'AI Debugging', description: 'Intelligent error detection that identifies, explains, and automatically fixes bugs in real-time as you build.', gradient: 'linear-gradient(135deg, #06b6d4, #0891b2)' },
+    { icon: Mic, title: 'Voice to Code', description: 'Speak your ideas naturally. Our AI converts conversations into structured, clean, production-ready code.', gradient: 'linear-gradient(135deg, #ec4899, #db2777)' },
+    { icon: Users2, title: 'Real-time Collaboration', description: 'Build together in real-time. Share workspaces, see live cursors, and co-edit AI prompts simultaneously.', gradient: 'linear-gradient(135deg, #f59e0b, #d97706)' },
+    { icon: LayoutTemplate, title: 'Smart Templates', description: 'AI-curated starter templates that adapt to your tech stack and project requirements automatically.', gradient: 'linear-gradient(135deg, #10b981, #059669)' },
 ];
 
-const containerVariants = {
-    hidden: {},
-    visible: {
-        transition: { staggerChildren: 0.1 },
-    },
-};
+function TiltCard({ children, index }: { children: React.ReactNode; index: number }) {
+    const ref = useRef<HTMLDivElement>(null);
+    const x = useMotionValue(0);
+    const y = useMotionValue(0);
 
-const cardVariants = {
-    hidden: { opacity: 0, y: 40 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: 'easeOut' as const } },
-};
+    const rotateX = useSpring(useTransform(y, [-0.5, 0.5], [8, -8]), { stiffness: 200, damping: 20 });
+    const rotateY = useSpring(useTransform(x, [-0.5, 0.5], [-8, 8]), { stiffness: 200, damping: 20 });
+
+    const handleMouse = (e: React.MouseEvent) => {
+        const rect = ref.current?.getBoundingClientRect();
+        if (!rect) return;
+        x.set((e.clientX - rect.left) / rect.width - 0.5);
+        y.set((e.clientY - rect.top) / rect.height - 0.5);
+    };
+
+    const handleLeave = () => {
+        x.set(0);
+        y.set(0);
+    };
+
+    return (
+        <motion.div
+            ref={ref}
+            initial={{ opacity: 0, y: 40 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: index * 0.08 }}
+            onMouseMove={handleMouse}
+            onMouseLeave={handleLeave}
+            style={{ rotateX, rotateY, transformStyle: 'preserve-3d', perspective: 1000 }}
+            className="tilt-card"
+        >
+            {children}
+        </motion.div>
+    );
+}
 
 export default function FeaturesSection() {
     return (
         <section id="features" className="relative" style={{ padding: '120px 0' }}>
-            {/* Background glow */}
-            <div
-                className="absolute rounded-full"
-                style={{
-                    top: 0, left: '50%', transform: 'translateX(-50%)',
-                    width: 800, height: 400,
-                    background: 'rgba(168,85,247,0.04)', filter: 'blur(150px)',
-                }}
-            />
-
-            <div className="relative z-10 section-container">
-                {/* Section header */}
+            <div className="section-container">
+                {/* Header */}
                 <motion.div
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     viewport={{ once: true }}
-                    transition={{ duration: 0.6 }}
+                    transition={{ duration: 0.7 }}
                     className="text-center"
-                    style={{ marginBottom: 80 }}
+                    style={{ marginBottom: 64 }}
                 >
-                    <span className="text-sm font-medium tracking-wider uppercase" style={{ color: '#a855f7' }}>
-                        Features
-                    </span>
-                    <h2 className="font-bold" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', marginTop: 16, marginBottom: 20 }}>
-                        Everything you need to{' '}
-                        <span className="gradient-text">build faster</span>
+                    <h2 className="gradient-text-hero font-bold" style={{ fontSize: 'clamp(2rem, 4vw, 3rem)', marginBottom: 16 }}>
+                        Powerful Features
                     </h2>
-                    <p className="text-gray-400 mx-auto" style={{ maxWidth: 600, fontSize: '1.1rem' }}>
-                        Powerful AI tools that transform how you build software. From idea to deployment in minutes.
+                    <p style={{ color: '#64748b', fontSize: '1.05rem', maxWidth: 500, margin: '0 auto' }}>
+                        Everything you need to ship production-ready applications at superhuman speed.
                     </p>
                 </motion.div>
 
-                {/* Feature grid */}
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    className="grid sm:grid-cols-2 lg:grid-cols-3"
-                    style={{ gap: 24 }}
-                >
-                    {features.map((feature) => (
-                        <motion.div
-                            key={feature.title}
-                            variants={cardVariants}
-                            whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                            className="glass-card card-gradient-border cursor-pointer group"
-                            style={{ padding: 32 }}
-                        >
-                            {/* Icon */}
+                {/* Grid */}
+                <div className="grid md:grid-cols-2 lg:grid-cols-3" style={{ gap: 20 }}>
+                    {features.map((feature, i) => (
+                        <TiltCard key={feature.title} index={i}>
                             <div
-                                className="flex items-center justify-center group-hover:scale-110 transition-transform duration-300"
-                                style={{
-                                    width: 48, height: 48, borderRadius: 14,
-                                    background: feature.gradient,
-                                    marginBottom: 24,
-                                }}
+                                className="glass glow-border h-full cursor-pointer group"
+                                style={{ padding: 32, borderRadius: 20, transition: 'background 0.3s ease' }}
                             >
-                                <feature.icon className="w-6 h-6 text-white" />
-                            </div>
+                                {/* Icon */}
+                                <div
+                                    className="flex items-center justify-center group-hover:scale-110 transition-transform duration-400"
+                                    style={{ width: 48, height: 48, borderRadius: 14, background: feature.gradient, marginBottom: 24 }}
+                                >
+                                    <feature.icon className="w-5 h-5 text-white" />
+                                </div>
 
-                            {/* Text */}
-                            <h3 className="text-white font-semibold" style={{ fontSize: '1.2rem', marginBottom: 12 }}>
-                                {feature.title}
-                            </h3>
-                            <p className="text-gray-400" style={{ fontSize: '0.9rem', lineHeight: 1.7 }}>
-                                {feature.description}
-                            </p>
+                                {/* Title */}
+                                <h3 className="text-white font-semibold" style={{ fontSize: '1.15rem', marginBottom: 12 }}>
+                                    {feature.title}
+                                </h3>
 
-                            {/* Hover arrow */}
-                            <div className="flex items-center gap-2 text-gray-500 group-hover:text-purple-400 transition-colors" style={{ marginTop: 24, fontSize: '0.875rem' }}>
-                                Learn more
-                                <span className="group-hover:translate-x-1 transition-transform">→</span>
+                                {/* Desc */}
+                                <p style={{ color: '#64748b', fontSize: '0.9rem', lineHeight: 1.7 }}>
+                                    {feature.description}
+                                </p>
                             </div>
-                        </motion.div>
+                        </TiltCard>
                     ))}
-                </motion.div>
+                </div>
             </div>
         </section>
     );
